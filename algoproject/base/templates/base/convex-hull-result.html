@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Home | Algorithm Project
+{% endblock title %}
+
+
+{% block content %}
+<h1>Result</h1>
+<h3>Points in Hull</h3>
+{% for point in points %}
+    ({{ point.x }}, {{ point.y }})
+    <br>
+{% endfor %}
+<h3>Graph</h3>
+<img src="{% static 'jarvis.png' %}" alt="Convex Hull">
+{% endblock content %}

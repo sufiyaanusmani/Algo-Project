@@ -9,4 +9,7 @@ urlpatterns = [
          name='lines-intersection-method-1-page'),
     path('lines-intersection/method-2', views.linesIntersectionMethod2Page,
          name='lines-intersection-method-2-page'),
+    path('convex-hull/', views.convexHullPage, name='convex-hull-page'),
+    path('convex-hull-result/', views.convexHullResultPage,
+         name='convex-hull-result-page'),
 ]
