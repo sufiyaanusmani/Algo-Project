@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}
+Lines Intersection | Algorithm Project
+{% endblock title %}
+
+
+{% block content %}
+<h1>{{ pageName }}</h1>
+<ul>
+    <li><a href="{% url 'lines-intersection-method-1-page' %}">Method 1</a></li>
+    <li><a href="{% url 'lines-intersection-method-2-page' %}">Method 2</a></li>
+</ul>
+{% endblock content %}
