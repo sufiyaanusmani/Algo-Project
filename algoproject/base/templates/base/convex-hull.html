@@ -8,13 +8,13 @@ Lines Intersection | Algorithm Project
 {% block content %}
 <h1>{{ pageName }}</h1>
 {% if pointsEntered == False %}
-<form action="{% url "convex-hull-page" %}" method="POST">
+<form action="{% url 'convex-hull-page' %}" method="POST">
     {% csrf_token %}
     <input type="text" name='totalPoints'>
     <button type="submit">Submit</button>
 </form>
 {% else %}
-<form action="{% url "convex-hull-page" %}" method="POST">
+<form action="{% url 'convex-hull-page' %}" method="POST">
     {% csrf_token %}
     {% for point in totalPoints %}
     <label for="x{{point}}">x{{point}}</label>
@@ -23,6 +23,10 @@ Lines Intersection | Algorithm Project
     <input type="text" name='y{{point}}' id='y{{point}}'>
     <br>
     {% endfor %}
+    <label><input type="radio" name="algorithm" value="bruteforce">Brute Force</label>
+    <label><input type="radio" name="algorithm" value="jarvismarch">Jarvis March</label>
+    <label><input type="radio" name="algorithm" value="grahamscan">Graham Scan</label>
+    <label><input type="radio" name="algorithm" value="quickelimination">Quick Elimination</label>
     <button type="submit">Submit</button>
 </form>
 {% endif %}
