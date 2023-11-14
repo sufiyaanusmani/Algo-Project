@@ -171,6 +171,9 @@ class ConvexHull:
         createAnimation(output_file='static/convexhull.gif',
                         algorithm='graham')
 
+    def quickElimination(self):
+        pass
+
     def saveGraph(self, fileName):
         allX = []
         allY = []
