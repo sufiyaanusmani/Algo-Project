@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull as cv
 import numpy as np
+import imageio
+import os
 
 # Create your views here.
 
@@ -10,6 +12,21 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+
+def createAnimation(output_file='animation.gif', fps=2):
+    images = []
+    png_folder = 'static'
+    png_files = [f for f in os.listdir(png_folder) if f.endswith('.png')]
+    print(png_files)
+    png_files.sort()
+
+    for png_file in png_files:
+        file_path = os.path.join(png_folder, png_file)
+        images.append(imageio.imread(file_path))
+
+    # Save the animation
+    imageio.mimsave(output_file, images, fps=fps)
 
 
 class ConvexHull:
@@ -44,6 +61,7 @@ class ConvexHull:
         l = self.Left_index(self.points)
 
         hull = []
+        self.hull = []
         p = l
         q = 0
         while (True):
@@ -63,10 +81,13 @@ class ConvexHull:
             if (p == l):
                 break
 
+        i = 1
         for each in hull:
             self.hull.append(Point(self.points[each].x, self.points[each].y))
+            self.saveGraph(f'static/jarvis{i}.png')
+            i += 1
 
-        self.saveGraph('static/jarvis.png')
+        createAnimation(output_file='static/jarvis.gif')
 
     def saveGraph(self, fileName):
         allX = []
