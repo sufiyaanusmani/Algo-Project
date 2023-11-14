@@ -7,4 +7,37 @@ Lines Intersection | Algorithm Project
 
 {% block content %}
 <h1>{{ pageName }}</h1>
+<form action="{% url 'lines-intersection-method-1-page' %}" method="POST">
+    {% csrf_token %}
+    <h3>Line Segment 1</h3>
+    <p>p1</p>
+    <label for="p1x">x</label>
+    <input type="text" name='p1x' id='p1x'>
+    <label for="p1y">y</label>
+    <input type="text" name='p1y' id='p1y'>
+    <br>
+    <p>p2</p>
+    <label for="p2x">x</label>
+    <input type="text" name='p2x' id='p2x'>
+    <label for="p2y">y</label>
+    <input type="text" name='p2y' id='p2y'>
+    <br>
+    <br>
+    <h3>Line Segment 2</h3>
+    <p>q1</p>
+    <label for="q1x">x</label>
+    <input type="text" name='q1x' id='q1x'>
+    <label for="q1y">y</label>
+    <input type="text" name='q1y' id='q1y'>
+    <br>
+    <p>q2</p>
+    <label for="q2x">x</label>
+    <input type="text" name='q2x' id='q2x'>
+    <label for="q2y">y</label>
+    <input type="text" name='q2y' id='q2y'>
+    <br>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+
 {% endblock content %}

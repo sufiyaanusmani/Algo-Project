@@ -12,4 +12,6 @@ urlpatterns = [
     path('convex-hull/', views.convexHullPage, name='convex-hull-page'),
     path('convex-hull-result/', views.convexHullResultPage,
          name='convex-hull-result-page'),
+    path('lines-intersection-result-page/', views.linesIntersectionResultPage,
+         name='lines-intersection-result-page'),
 ]

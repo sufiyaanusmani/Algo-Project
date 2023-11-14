@@ -70,6 +70,37 @@ def nextToTop(S):
     return S[-2]
 
 
+def onSegment(p, q, r):
+    if ((q.x <= max(p.x, r.x)) and (q.x >= min(p.x, r.x)) and
+            (q.y <= max(p.y, r.y)) and (q.y >= min(p.y, r.y))):
+        return True
+    return False
+
+
+def doIntersect(p1, q1, p2, q2):
+    o1 = orientation(p1, q1, p2)
+    o2 = orientation(p1, q1, q2)
+    o3 = orientation(p2, q2, p1)
+    o4 = orientation(p2, q2, q1)
+
+    if ((o1 != o2) and (o3 != o4)):
+        return True
+
+    if ((o1 == 0) and onSegment(p1, p2, q1)):
+        return True
+
+    if ((o2 == 0) and onSegment(p1, q2, q1)):
+        return True
+
+    if ((o3 == 0) and onSegment(p2, p1, q2)):
+        return True
+
+    if ((o4 == 0) and onSegment(p2, q1, q2)):
+        return True
+
+    return False
+
+
 class ConvexHull:
     def __init__(self):
         self.points = []
@@ -220,6 +251,24 @@ def linesIntersectionPage(request):
 
 
 def linesIntersectionMethod1Page(request):
+    if request.method == 'POST':
+        p1 = Point(int(request.POST['p1x']), int(request.POST['p1y']))
+        p2 = Point(int(request.POST['p2x']), int(request.POST['p2y']))
+        q1 = Point(int(request.POST['q1x']), int(request.POST['q1y']))
+        q2 = Point(int(request.POST['q2x']), int(request.POST['q2y']))
+
+        plt.clf()
+        plt.plot([p1.x, p2.x], [p1.y, p2.y],
+                 label='Line Segment 1', color='blue', marker='o')
+        plt.plot([q1.x, q2.x], [q1.y, q2.y],
+                 label='Line Segment 2', color='red', marker='s')
+        plt.xlabel('x-axis')
+        plt.ylabel('y-axis')
+        plt.legend()
+        plt.savefig('static/line.png')
+        plt.clf()
+        return redirect('lines-intersection-result-page')
+
     context = {'pageName': "Lines Interesection Method 1 Page"}
     return render(request, 'base/lines-intersection-method-1.html', context)
 
@@ -262,3 +311,8 @@ def convexHullPage(request):
 def convexHullResultPage(request):
     context = {'points': convexHull.hull}
     return render(request, 'base/convex-hull-result.html', context)
+
+
+def linesIntersectionResultPage(request):
+    context = {}
+    return render(request, 'base/lines-intersection-result.html', context)
