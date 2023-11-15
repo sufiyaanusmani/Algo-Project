@@ -101,6 +101,16 @@ def doIntersect(p1, q1, p2, q2):
     return False
 
 
+def findSide(p1, p2, p):
+    val = (p[1] - p1[1]) * (p2[0] - p1[0]) - (p2[1] - p1[1]) * (p[0] - p1[0])
+
+    if val > 0:
+        return 1
+    if val < 0:
+        return -1
+    return 0
+
+
 class ConvexHull:
     def __init__(self):
         self.points = []
@@ -115,6 +125,50 @@ class ConvexHull:
                 if points[i].y > points[minn].y:
                     minn = i
         return minn
+
+    def bruteForce(self):
+        self.hull = []
+
+        h = 1
+        for i in range(len(self.points)):
+            for j in range(i+1, len(self.points)):
+                x1, x2 = self.points[i].x, self.points[j].x
+                y1, y2 = self.points[i].y, self.points[j].y
+                a1, b1, c1 = y1-y2, x2-x1, x1*y2-y1*x2
+                pos, neg = 0, 0
+                for k in range(len(self.points)):
+                    if (k == i) or (k == j) or (a1*self.points[k].x+b1*self.points[k].y+c1 <= 0):
+                        neg += 1
+                    if (k == i) or (k == j) or (a1*self.points[k].x+b1*self.points[k].y+c1 >= 0):
+                        pos += 1
+                if pos == len(self.points) or neg == len(self.points):
+                    self.hull.append(self.points[i])
+                    self.saveGraph(f'static/{h}bruteforce.png')
+                    h += 1
+                    self.hull.append(self.points[j])
+                    self.saveGraph(f'static/{h}bruteforce.png')
+                    h += 1
+
+        self.hull = []
+        ret = []
+        for x in self.hull:
+            ret.append(x)
+
+        mid = [0, 0]
+        n = len(ret)
+        for i in range(n):
+            mid[0] += ret[i].x
+            mid[1] += ret[i].y
+            ret[i].x *= n
+            ret[i].y *= n
+        ret = sorted(ret, key=cmp_to_key(compare))
+        for i in range(n):
+            ret[i] = [ret[i].x/n, ret[i].y/n]
+            self.saveGraph(f'static/{h}bruteforce.png')
+            h += 1
+
+        createAnimation(output_file='static/convexhull.gif',
+                        algorithm='bruteforce')
 
     def jarvisMarch(self):
         n = len(self.points)
@@ -202,8 +256,47 @@ class ConvexHull:
         createAnimation(output_file='static/convexhull.gif',
                         algorithm='graham')
 
+    def quickHull(self, a, n, p1, p2, side):
+
+        ind = -1
+        max_dist = 0
+
+        for i in range(n):
+            temp = distSq(p1, p2, a[i])
+
+            if (findSide(p1, p2, a[i]) == side) and (temp > max_dist):
+                ind = i
+                max_dist = temp
+
+        if ind == -1:
+            self.hull.append("$".join(map(str, p1)))
+            self.hull.append("$".join(map(str, p2)))
+            return
+
+        self.quickHull(a, n, a[ind], p1, -findSide(a[ind], p1, p2))
+        self.quickHull(a, n, a[ind], p2, -findSide(a[ind], p2, p1))
+
     def quickElimination(self):
-        pass
+        n = len(self.points)
+        if (n < 3):
+            return
+
+        min_x = 0
+        max_x = 0
+        for i in range(1, n):
+            if self.points[i].x < self.points[min_x].x:
+                min_x = i
+            if self.points[i].x > self.points[max_x].x:
+                max_x = i
+
+        self.quickHull(
+            self.points, n, self.points[min_x], self.points[max_x], 1)
+
+        self.quickHull(
+            self.points, n, self.points[min_x], self.points[max_x], -1)
+
+        for element in self.hull:
+            x = element.split("$")
 
     def saveGraph(self, fileName):
         allX = []
@@ -250,17 +343,26 @@ def linesIntersectionPage(request):
     return render(request, 'base/lines-intersection.html', context)
 
 
+text = ''
+
+
 def linesIntersectionMethod1Page(request):
+    global text
     if request.method == 'POST':
         p1 = Point(int(request.POST['p1x']), int(request.POST['p1y']))
-        p2 = Point(int(request.POST['p2x']), int(request.POST['p2y']))
         q1 = Point(int(request.POST['q1x']), int(request.POST['q1y']))
+        p2 = Point(int(request.POST['p2x']), int(request.POST['p2y']))
         q2 = Point(int(request.POST['q2x']), int(request.POST['q2y']))
 
+        if doIntersect(p1, q1, p2, q2):
+            text = 'Line Segments Intersect'
+        else:
+            text = 'Line Segments Do Not Intersect'
+
         plt.clf()
-        plt.plot([p1.x, p2.x], [p1.y, p2.y],
+        plt.plot([p1.x, q1.x], [p1.y, q1.y],
                  label='Line Segment 1', color='blue', marker='o')
-        plt.plot([q1.x, q2.x], [q1.y, q2.y],
+        plt.plot([p2.x, q2.x], [p2.y, q2.y],
                  label='Line Segment 2', color='red', marker='s')
         plt.xlabel('x-axis')
         plt.ylabel('y-axis')
@@ -302,6 +404,8 @@ def convexHullPage(request):
                 convexHull.jarvisMarch()
             elif algorithm == 'grahamscan':
                 convexHull.grahamScan()
+            elif algorithm == 'bruteforce':
+                convexHull.bruteForce()
             return redirect('convex-hull-result-page')
     context = {'pageName': "Convex Hull Page",
                'pointsEntered': pointsEntered, 'totalPoints': t, 'algorithm': algorithm}
@@ -314,5 +418,5 @@ def convexHullResultPage(request):
 
 
 def linesIntersectionResultPage(request):
-    context = {}
+    context = {'text': text}
     return render(request, 'base/lines-intersection-result.html', context)
