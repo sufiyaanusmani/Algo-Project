@@ -77,7 +77,14 @@ def onSegment(p, q, r):
     return False
 
 
-def doIntersect(p1, q1, p2, q2):
+def slope(p1, p2):
+    if p1.x == p2.x:
+        return float('inf')
+
+    return (p2.y - p1.y) / (p2.x - p1.x)
+
+
+def doIntersectMethod1(p1, q1, p2, q2):
     o1 = orientation(p1, q1, p2)
     o2 = orientation(p1, q1, q2)
     o3 = orientation(p2, q2, p1)
@@ -99,6 +106,26 @@ def doIntersect(p1, q1, p2, q2):
         return True
 
     return False
+
+
+def doIntersectMethod2(p1, q1, p2, q2):
+    x1, y1 = p1.x, p1.y
+    x2, y2 = q1.x, q1.y
+    x3, y3 = p2.x, p2.y
+    x4, y4 = q2.x, q2.y
+
+    denom = (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1)
+    if denom == 0:  # parallel
+        return None
+    ua = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / denom
+    if ua < 0 or ua > 1:  # out of range
+        return None
+    ub = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / denom
+    if ub < 0 or ub > 1:  # out of range
+        return None
+    x = x1 + ua * (x2-x1)
+    y = y1 + ua * (y2-y1)
+    return (x, y)
 
 
 def findSide(p1, p2, p):
@@ -348,13 +375,14 @@ text = ''
 
 def linesIntersectionMethod1Page(request):
     global text
+    text = ''
     if request.method == 'POST':
         p1 = Point(int(request.POST['p1x']), int(request.POST['p1y']))
         q1 = Point(int(request.POST['q1x']), int(request.POST['q1y']))
         p2 = Point(int(request.POST['p2x']), int(request.POST['p2y']))
         q2 = Point(int(request.POST['q2x']), int(request.POST['q2y']))
 
-        if doIntersect(p1, q1, p2, q2):
+        if doIntersectMethod1(p1, q1, p2, q2):
             text = 'Line Segments Intersect'
         else:
             text = 'Line Segments Do Not Intersect'
@@ -376,6 +404,38 @@ def linesIntersectionMethod1Page(request):
 
 
 def linesIntersectionMethod2Page(request):
+    global text
+    text = ''
+    if request.method == 'POST':
+        p1 = Point(int(request.POST['p1x']), int(request.POST['p1y']))
+        q1 = Point(int(request.POST['q1x']), int(request.POST['q1y']))
+        p2 = Point(int(request.POST['p2x']), int(request.POST['p2y']))
+        q2 = Point(int(request.POST['q2x']), int(request.POST['q2y']))
+
+        point = doIntersectMethod2(p1, q1, p2, q2)
+        if point is not None:
+            text = 'Line Segments Intersect'
+        else:
+            text = 'Line Segments Do Not Intersect'
+
+        plt.clf()
+        plt.figure(figsize=(4, 4))
+        plt.plot((p1.x, q1.x), (p1.y, q1.y), '.r--')
+        plt.plot((p2.x, q2.x), (p2.y, q2.y), '.b--')
+
+        if point is not None:
+            plt.plot(*point, 'ok', markersize=10)
+        # plt.plot([p1.x, q1.x], [p1.y, q1.y],
+        #          label='Line Segment 1', color='blue', marker='o')
+        # plt.plot([p2.x, q2.x], [p2.y, q2.y],
+        #          label='Line Segment 2', color='red', marker='s')
+        # plt.xlabel('x-axis')
+        # plt.ylabel('y-axis')
+        # plt.legend()
+        plt.savefig('static/line.png')
+        plt.clf()
+        return redirect('lines-intersection-result-page')
+
     context = {'pageName': "Lines Interesection Method 2 Page"}
     return render(request, 'base/lines-intersection-method-2.html', context)
 
