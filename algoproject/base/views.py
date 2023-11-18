@@ -425,13 +425,8 @@ def linesIntersectionMethod2Page(request):
 
         if point is not None:
             plt.plot(*point, 'ok', markersize=10)
-        # plt.plot([p1.x, q1.x], [p1.y, q1.y],
-        #          label='Line Segment 1', color='blue', marker='o')
-        # plt.plot([p2.x, q2.x], [p2.y, q2.y],
-        #          label='Line Segment 2', color='red', marker='s')
-        # plt.xlabel('x-axis')
-        # plt.ylabel('y-axis')
-        # plt.legend()
+        plt.xlabel('x-axis')
+        plt.ylabel('y-axis')
         plt.savefig('static/line.png')
         plt.clf()
         return redirect('lines-intersection-result-page')
